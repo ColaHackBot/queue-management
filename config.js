@@ -1,6 +1,6 @@
 // config.js
 const CONFIG = {
-    API_URL: 'https://script.google.com/macros/s/AKfycbzMDfDJx0tyvTQU4mqhjs3mK4aXCGj8tzZe0PJTS-w8A-5kH9L81FOmnrX6y3-XAf79/exec', // ใส่ URL ที่ได้จาก Apps Script
+    API_URL: 'https://script.google.com/macros/s/AKfycbwZxXnWnIx_o-j33y3f_eTFzGKa8CfeA9QOUBwlv7nV64gWFG3DGSfWeRjbnXPxuJPD/exec', // ใส่ URL ที่ได้จาก Apps Script
     THEMES: {
         default: {
             primary: '#ff9eb5',
@@ -73,4 +73,5 @@ function applyTheme(themeName) {
 document.addEventListener('DOMContentLoaded', function() {
     const savedTheme = localStorage.getItem('selectedTheme') || 'default';
     applyTheme(savedTheme);
+
 });
