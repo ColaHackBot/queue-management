@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบตรวจสอบคิวงาน</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-clipboard-check"></i> ระบบตรวจสอบคิวงาน
+            </a>
+            <div>
+                <a href="admin.html" class="btn btn-primary">
+                    <i class="bi bi-person-circle"></i> สำหรับแอดมิน
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-5">
+        <!-- Search Section -->
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card p-4">
+                    <h4 class="text-center mb-4">
+                        <i class="bi bi-search"></i> ค้นหาข้อมูลคิวงาน
+                    </h4>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="searchInput"
+                            placeholder="กรุณากรอกเลขคิวงาน เช่น Q123456">
+                        <button class="btn btn-primary" type="button" onclick="searchQueue()">
+                            <i class="bi bi-search"></i> ค้นหา
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Result -->
+        <div class="row mt-4" id="searchResult"></div>
+
+        <!-- All Queues Section -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <h4 class="mb-4">
+                    <i class="bi bi-list-ul"></i> รายการคิวงานทั้งหมด
+                </h4>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>เลขคิว</th>
+                                <th>ชื่อป้าย</th>
+                                <th>ประเภทป้าย</th>
+                                <th>วันที่เริ่ม</th>
+                                <th>สถานะ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="queueTableBody">
+                            <tr>
+                                <td colspan="5" class="text-center">กำลังโหลดข้อมูล...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Theme Selector -->
+    <div class="theme-selector">
+        <div class="d-flex flex-column">
+            <div class="theme-btn default" onclick="applyTheme('default')"></div>
+            <div class="theme-btn mint mt-2" onclick="applyTheme('mint')"></div>
+            <div class="theme-btn lavender mt-2" onclick="applyTheme('lavender')"></div>
+            <div class="theme-btn peach mt-2" onclick="applyTheme('peach')"></div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container text-center">
+            <p class="mb-0">© 2024 ระบบตรวจสอบคิวงาน - สงวนลิขสิทธิ์</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="config.js"></script>
+    <script src="js/app.js"></script>
+
+    <script>
+        // โหลดข้อมูลทั้งหมดเมื่อเปิดหน้า
+        $(document).ready(function () {
+            loadAllQueues();
+        });
+
+        // ฟังก์ชันค้นหาคิว
+        function searchQueue() {
+            const searchTerm = $('#searchInput').val().trim();
+            if (!searchTerm) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'กรุณากรอกเลขคิว',
+                    text: 'โปรดกรอกเลขคิวที่ต้องการค้นหา',
+                    confirmButtonColor: 'var(--primary)'
+                });
+                return;
+            }
+
+            $.ajax({
+                url: CONFIG.API_URL,
+                method: 'POST',
+                data: {
+                    action: 'searchQueue',
+                    search_term: searchTerm
+                },
+                success: function (response) {
+                    if (response.success) {
+                        displaySearchResult(response.data);
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'ไม่พบข้อมูล',
+                            text: response.message,
+                            confirmButtonColor: 'var(--primary)'
+                        });
+                    }
+                },
+                error: function () {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาด',
+                        text: 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้',
+                        confirmButtonColor: 'var(--primary)'
+                    });
+                }
+            });
+        }
+
+        // แสดงผลการค้นหา
+        function displaySearchResult(data) {
+            let html = '<div class="col-12"><div class="card p-4"><h5>ผลการค้นหา</h5>';
+
+            if (data.length > 0) {
+                data.forEach(item => {
+                    html += `
+                <div class="search-result-item p-3 border-bottom">
+                    <div class="row">
+                        <div class="col-md-2"><strong>เลขคิว:</strong> ${item.queue_id}</div>
+                        <div class="col-md-3"><strong>ชื่อป้าย:</strong> ${item.sign_name}</div>
+                        <div class="col-md-2"><strong>ประเภท:</strong> ${item.sign_type}</div>
+                        <div class="col-md-3"><strong>วันที่เริ่ม:</strong> ${item.start_day}/${item.start_month}/${item.start_year}</div>
+                        <div class="col-md-2">
+                            <span class="status-badge status-${item.status === 'รอทำ' ? 'waiting' : (item.status === 'กำลังทำ' ? 'doing' : 'done')}">
+                                ${item.status}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `;
+                });
+            } else {
+                html += '<p class="text-center">ไม่พบข้อมูลที่ค้นหา</p>';
+            }
+
+            html += '</div></div>';
+            $('#searchResult').html(html);
+        }
+
+        // โหลดข้อมูลทั้งหมด
+        function loadAllQueues() {
+            $.ajax({
+                url: CONFIG.API_URL,
+                method: 'POST',
+                data: {
+                    action: 'getQueues'
+                },
+                success: function (response) {
+                    if (response.success && response.data) {
+                        displayQueues(response.data);
+                    }
+                }
+            });
+        }
+
+        // แสดงข้อมูลในตาราง
+        function displayQueues(queues) {
+            let html = '';
+            queues.forEach(queue => {
+                html += `
+            <tr>
+                <td><strong>${queue.queue_id}</strong></td>
+                <td>${queue.sign_name}</td>
+                <td>${queue.sign_type}</td>
+                <td>${queue.start_day}/${queue.start_month}/${queue.start_year}</td>
+                <td>
+                    <span class="status-badge status-${queue.status === 'รอทำ' ? 'waiting' : (queue.status === 'กำลังทำ' ? 'doing' : 'done')}">
+                        ${queue.status}
+                    </span>
+                </td>
+            </tr>
+        `;
+            });
+
+            if (html === '') {
+                html = '<tr><td colspan="5" class="text-center">ไม่พบข้อมูล</td></tr>';
+            }
+
+            $('#queueTableBody').html(html);
+        }
+    </script>
+
+</body>
+
+</html>

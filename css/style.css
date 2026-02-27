@@ -1,0 +1,200 @@
+/* style.css */
+:root {
+    --primary: #ff9eb5;
+    --secondary: #a5d8ff;
+    --success: #b7e4c7;
+    --danger: #ffb3b3;
+    --warning: #ffe5b4;
+    --info: #c7d9ff;
+    --light: #f8f9fa;
+    --dark: #343a40;
+    --background: #fff0f3;
+    --card: #ffffff;
+    --text: #495057;
+}
+
+body {
+    font-family: 'Kanit', sans-serif;
+    background-color: var(--background);
+    color: var(--text);
+    min-height: 100vh;
+    transition: all 0.3s ease;
+}
+
+.navbar {
+    background-color: var(--card) !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.navbar-brand {
+    color: var(--primary) !important;
+    font-weight: 600;
+    font-size: 1.5rem;
+}
+
+.card {
+    border: none;
+    border-radius: 20px;
+    background-color: var(--card);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.03);
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.btn {
+    border-radius: 12px;
+    padding: 8px 20px;
+    font-weight: 500;
+    border: none;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background-color: var(--primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary);
+    opacity: 0.9;
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background-color: var(--secondary);
+    color: white;
+}
+
+.btn-success {
+    background-color: var(--success);
+    color: white;
+}
+
+.btn-danger {
+    background-color: var(--danger);
+    color: white;
+}
+
+.table {
+    background-color: var(--card);
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.table thead th {
+    background-color: var(--primary);
+    color: white;
+    font-weight: 500;
+    border: none;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(255, 158, 181, 0.1);
+}
+
+.status-badge {
+    padding: 5px 15px;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.status-waiting {
+    background-color: var(--warning);
+    color: #856404;
+}
+
+.status-doing {
+    background-color: var(--info);
+    color: #004085;
+}
+
+.status-done {
+    background-color: var(--success);
+    color: #155724;
+}
+
+.modal-content {
+    border-radius: 25px;
+    border: none;
+}
+
+.modal-header {
+    background-color: var(--primary);
+    color: white;
+    border-radius: 25px 25px 0 0;
+}
+
+.modal-header .btn-close {
+    filter: brightness(0) invert(1);
+}
+
+.form-control,
+.form-select {
+    border-radius: 12px;
+    border: 2px solid #f0f0f0;
+    padding: 10px 15px;
+    transition: all 0.3s;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 0.2rem rgba(255, 158, 181, 0.25);
+}
+
+.theme-selector {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 999;
+}
+
+.theme-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 3px solid white;
+    margin: 0 5px;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+}
+
+.theme-btn:hover {
+    transform: scale(1.1);
+}
+
+.theme-btn.default {
+    background: #ff9eb5;
+}
+
+.theme-btn.mint {
+    background: #84dcc6;
+}
+
+.theme-btn.lavender {
+    background: #b8b5ff;
+}
+
+.theme-btn.peach {
+    background: #ffc8a2;
+}
+
+.search-box {
+    background-color: var(--card);
+    border-radius: 50px;
+    padding: 10px 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+.footer {
+    background-color: var(--card);
+    padding: 20px 0;
+    margin-top: 50px;
+    border-radius: 30px 30px 0 0;
+}

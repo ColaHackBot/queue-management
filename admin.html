@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบจัดการคิวงาน (แอดมิน)</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-gear-fill"></i> ระบบจัดการคิวงาน (แอดมิน)
+            </a>
+            <div>
+                <a href="index.html" class="btn btn-primary">
+                    <i class="bi bi-house-door"></i> หน้าหลัก
+                </a>
+                <button class="btn btn-secondary ms-2" onclick="logout()">
+                    <i class="bi bi-box-arrow-right"></i> ออกจากระบบ
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-shield-lock"></i> ยืนยันตัวตน
+                    </h5>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">รหัสผ่าน</label>
+                        <input type="password" class="form-control" id="password" placeholder="กรุณาใส่รหัสผ่าน">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="index.html" class="btn btn-secondary">กลับหน้าหลัก</a>
+                    <button type="button" class="btn btn-primary" onclick="login()">
+                        <i class="bi bi-box-arrow-in-right"></i> เข้าสู่ระบบ
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="adminContent" style="display: none;">
+        <div class="container mt-4">
+            <!-- Toolbar -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card p-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0">
+                                <i class="bi bi-plus-circle"></i> จัดการข้อมูลคิวงาน
+                            </h4>
+                            <button class="btn btn-success" onclick="showAddModal()">
+                                <i class="bi bi-plus-lg"></i> เพิ่มคิวใหม่
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Queue Table -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>เลขคิว</th>
+                                    <th>ชื่อป้าย</th>
+                                    <th>ประเภทป้าย</th>
+                                    <th>วันที่เริ่ม</th>
+                                    <th>สถานะ</th>
+                                    <th>จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminQueueTableBody">
+                                <tr>
+                                    <td colspan="6" class="text-center">กำลังโหลดข้อมูล...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div class="modal fade" id="queueModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">เพิ่มคิวใหม่</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="queueId">
+
+                    <div class="mb-3">
+                        <label class="form-label">ชื่อป้าย</label>
+                        <input type="text" class="form-control" id="signName" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">ประเภทป้าย</label>
+                        <select class="form-select" id="signType">
+                            <option value="ป้ายไวนิล">ป้ายไวนิล</option>
+                            <option value="ป้ายอะคริลิค">ป้ายอะคริลิค</option>
+                            <option value="ป้ายไฟLED">ป้ายไฟLED</option>
+                            <option value="อื่นๆ">อื่นๆ</option>
+                        </select>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-4">
+                            <label class="form-label">วันที่</label>
+                            <input type="text" class="form-control" id="startDay" placeholder="DD">
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label">เดือน</label>
+                            <input type="text" class="form-control" id="startMonth" placeholder="MM">
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label">ปี</label>
+                            <input type="text" class="form-control" id="startYear" placeholder="YYYY">
+                        </div>
+                    </div>
+
+                    <div class="mb-3 mt-3">
+                        <label class="form-label">สถานะ</label>
+                        <select class="form-select" id="status">
+                            <option value="รอทำ">รอทำ</option>
+                            <option value="กำลังทำ">กำลังทำ</option>
+                            <option value="เสร็จแล้ว">เสร็จแล้ว</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                    <button type="button" class="btn btn-primary" onclick="saveQueue()">บันทึก</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Theme Selector -->
+    <div class="theme-selector">
+        <div class="d-flex flex-column">
+            <div class="theme-btn default" onclick="applyTheme('default')"></div>
+            <div class="theme-btn mint mt-2" onclick="applyTheme('mint')"></div>
+            <div class="theme-btn lavender mt-2" onclick="applyTheme('lavender')"></div>
+            <div class="theme-btn peach mt-2" onclick="applyTheme('peach')"></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="config.js"></script>
+
+    <script>
+        let currentModal = null;
+
+        $(document).ready(function () {
+            $('#loginModal').modal('show');
+        });
+
+        // ฟังก์ชันเข้าสู่ระบบ
+        function login() {
+            const password = $('#password').val();
+
+            $.ajax({
+                url: CONFIG.API_URL,
+                method: 'POST',
+                data: {
+                    action: 'login',
+                    password: password
+                },
+                success: function (response) {
+                    if (response.success) {
+                        $('#loginModal').modal('hide');
+                        $('#adminContent').show();
+                        loadAdminQueues();
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'เข้าสู่ระบบสำเร็จ',
+                            text: 'ยินดีต้อนรับสู่ระบบจัดการ',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'รหัสผ่านไม่ถูกต้อง',
+                            text: 'กรุณาลองใหม่อีกครั้ง',
+                            confirmButtonColor: 'var(--primary)'
+                        });
+                    }
+                }
+            });
+        }
+
+        // ออกจากระบบ
+        function logout() {
+            Swal.fire({
+                title: 'ต้องการออกจากระบบ?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: 'var(--primary)',
+                cancelButtonColor: 'var(--secondary)',
+                confirmButtonText: 'ใช่, ออกจากระบบ',
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('#adminContent').hide();
+                    $('#loginModal').modal('show');
+                    $('#password').val('');
+                }
+            });
+        }
+
+        // โหลดข้อมูลสำหรับแอดมิน
+        function loadAdminQueues() {
+            $.ajax({
+                url: CONFIG.API_URL,
+                method: 'POST',
+                data: {
+                    action: 'getQueues'
+                },
+                success: function (response) {
+                    if (response.success && response.data) {
+                        displayAdminQueues(response.data);
+                    }
+                }
+            });
+        }
+
+        // แสดงข้อมูลในตารางแอดมิน
+        function displayAdminQueues(queues) {
+            let html = '';
+            queues.forEach(queue => {
+                html += `
+            <tr>
+                <td><strong>${queue.queue_id}</strong></td>
+                <td>${queue.sign_name}</td>
+                <td>${queue.sign_type}</td>
+                <td>${queue.start_day}/${queue.start_month}/${queue.start_year}</td>
+                <td>
+                    <span class="status-badge status-${queue.status === 'รอทำ' ? 'waiting' : (queue.status === 'กำลังทำ' ? 'doing' : 'done')}">
+                        ${queue.status}
+                    </span>
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-warning" onclick="editQueue('${queue.queue_id}')">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteQueue('${queue.queue_id}')">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+            });
+
+            if (html === '') {
+                html = '<tr><td colspan="6" class="text-center">ไม่พบข้อมูล</td></tr>';
+            }
+
+            $('#adminQueueTableBody').html(html);
+        }
+
+        // แสดง modal เพิ่มข้อมูล
+        function showAddModal() {
+            $('#modalTitle').text('เพิ่มคิวใหม่');
+            $('#queueId').val('');
+            $('#signName').val('');
+            $('#signType').val('ป้ายไวนิล');
+            $('#startDay').val('');
+            $('#startMonth').val('');
+            $('#startYear').val('');
+            $('#status').val('รอทำ');
+
+            currentModal = new bootstrap.Modal(document.getElementById('queueModal'));
+            currentModal.show();
+        }
+
+        // แก้ไขข้อมูล
+        function editQueue(queueId) {
+            $.ajax({
+                url: CONFIG.API_URL,
+                method: 'POST',
+                data: {
+                    action: 'getQueue',
+                    queue_id: queueId
+                },
+                success: function (response) {
+                    if (response.success && response.data) {
+                        const queue = response.data;
+                        $('#modalTitle').text('แก้ไขคิว');
+                        $('#queueId').val(queue.queue_id);
+                        $('#signName').val(queue.sign_name);
+                        $('#signType').val(queue.sign_type);
+                        $('#startDay').val(queue.start_day);
+                        $('#startMonth').val(queue.start_month);
+                        $('#startYear').val(queue.start_year);
+                        $('#status').val(queue.status);
+
+                        currentModal = new bootstrap.Modal(document.getElementById('queueModal'));
+                        currentModal.show();
+                    }
+                }
+            });
+        }
+
+        // บันทึกข้อมูล
+        function saveQueue() {
+            const queueId = $('#queueId').val();
+            const signName = $('#signName').val();
+            const signType = $('#signType').val();
+            const startDay = $('#startDay').val();
+            const startMonth = $('#startMonth').val();
+            const startYear = $('#startYear').val();
+            const status = $('#status').val();
+
+            // ตรวจสอบข้อมูล
+            if (!signName || !signType || !startDay || !startMonth || !startYear || !status) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'กรุณากรอกข้อมูลให้ครบถ้วน',
+                    confirmButtonColor: 'var(--primary)'
+                });
+                return;
+            }
+
+            const action = queueId ? 'updateQueue' : 'addQueue';
+            const data = {
+                action: action,
+                sign_name: signName,
+                sign_type: signType,
+                start_day: startDay,
+                start_month: startMonth,
+                start_year: startYear,
+                status: status
+            };
+
+            if (queueId) {
+                data.queue_id = queueId;
+            }
+
+            $.ajax({
+                url: CONFIG.API_URL,
+                method: 'POST',
+                data: data,
+                success: function (response) {
+                    if (response.success) {
+                        currentModal.hide();
+                        loadAdminQueues();
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'บันทึกข้อมูลสำเร็จ',
+                            text: response.message,
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'เกิดข้อผิดพลาด',
+                            text: response.message,
+                            confirmButtonColor: 'var(--primary)'
+                        });
+                    }
+                }
+            });
+        }
+
+        // ลบข้อมูล
+        function deleteQueue(queueId) {
+            Swal.fire({
+                title: 'ยืนยันการลบ?',
+                text: 'คุณแน่ใจหรือไม่ที่จะลบข้อมูลนี้',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: 'var(--danger)',
+                cancelButtonColor: 'var(--secondary)',
+                confirmButtonText: 'ใช่, ลบเลย',
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: CONFIG.API_URL,
+                        method: 'POST',
+                        data: {
+                            action: 'deleteQueue',
+                            queue_id: queueId
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                loadAdminQueues();
+
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'ลบข้อมูลสำเร็จ',
+                                    text: response.message,
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'เกิดข้อผิดพลาด',
+                                    text: response.message,
+                                    confirmButtonColor: 'var(--primary)'
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+
+</body>
+
+</html>
